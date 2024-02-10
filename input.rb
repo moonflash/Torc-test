@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'tax_calculator'
+require_relative 'lib/tax_calculator'
 
 puts 'Enter input:'
 input = ''

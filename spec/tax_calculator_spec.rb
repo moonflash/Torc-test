@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rspec'
-require_relative 'tax_calculator'
+require_relative '../lib/tax_calculator'
 
 describe TaxCalculator do # rubocop:disable Metrics/BlockLength
   let(:calculator) { TaxCalculator.new }
