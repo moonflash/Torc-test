@@ -4,7 +4,7 @@
 class TaxCalculator
   TAX_EXEMPT_CATEGORIES = %w[book chocolate pills].freeze
 
-  def self.generate_receipt(input)
+  def generate_receipt(input)
     items = parse_input(input)
     total_sales_taxes, total_amount = calculate_totals(items)
     receipt_lines = prepare_receipt(items)

@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
-require 'byebug'
-require_relative 'sales_tax_calculator'
-
-calculator = SalesTaxCalculator.new
+require_relative 'tax_calculator'
 
 puts 'Enter input:'
 input = ''
@@ -16,4 +13,4 @@ end
 
 # Output results
 puts 'Receipt:'
-puts calculator.generate_receipt(input)
+puts TaxCalculator.new.generate_receipt(input)
