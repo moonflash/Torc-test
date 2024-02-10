@@ -1,29 +1,34 @@
 # frozen_string_literal: true
 
-# Sales tax calculator class
+# TaxCalculator
+# responsible for calculating the sales tax and total price for each item in the input
+# and preparing the receipt lines for the receipt
+# accepts an array of item objects
+# {:quantity, :category, :price, :is_imported}
 class TaxCalculator
   TAX_EXEMPT_CATEGORIES = %w[book chocolate pills].freeze
 
-  def generate_receipt(input)
-    items = parse_input(input)
-    total_sales_taxes, total_amount = calculate_totals(items)
-    receipt_lines = prepare_receipt(items)
+  def initialize(items)
+    @items = items
+  end
 
-    receipt = receipt_lines.join("\n")
-    [receipt, sales_tax_presenter(total_sales_taxes), total_amount_presenter(total_amount)]
+  def result
+    total_sales_taxes, total_amount = calculate_totals(@items)
+    receipt_lines = prepare_receipt_lines(@items)
+    [receipt_lines, total_sales_taxes, total_amount]
   end
 
   private
 
-  def calculate_sales_tax(price, is_imported, category)
-    tax_rate = calculate_tax_rate(is_imported, category)
-    round_up_to_nearest_five_cents(price * tax_rate)
+  def calculate_sales_tax(item)
+    tax_rate = calculate_tax_rate(item)
+    round_up_to_nearest_five_cents(item[:price] * tax_rate)
   end
 
-  def calculate_tax_rate(is_imported, category)
+  def calculate_tax_rate(item)
     tax_rate = 0.1 # Basic sales tax rate
-    tax_rate = 0 if TAX_EXEMPT_CATEGORIES.any? { |exempt_category| category.include?(exempt_category) }
-    tax_rate += 0.05 if is_imported
+    tax_rate = 0 if TAX_EXEMPT_CATEGORIES.any? { |exempt_category| item[:category].include?(exempt_category) }
+    tax_rate += 0.05 if item[:is_imported]
     tax_rate
   end
 
@@ -40,24 +45,21 @@ class TaxCalculator
     total_amount = 0
 
     items.each do |item|
-      quantity, category, price, is_imported = parse_item(item)
-      sales_tax = calculate_sales_tax(price, is_imported, category)
-      total_price = calculate_total_price(price, sales_tax, quantity)
+      sales_tax = calculate_sales_tax(item)
+      total_price = calculate_total_price(item[:price], sales_tax, item[:quantity])
 
-      total_sales_taxes += sales_tax * quantity
+      total_sales_taxes += sales_tax * item[:quantity]
       total_amount += total_price
     end
 
     [total_sales_taxes, total_amount]
   end
 
-  def prepare_receipt(items)
+  def prepare_receipt_lines(items)
     receipt_lines = []
-
     items.each do |item|
-      quantity, category, price, is_imported = parse_item(item)
-      total_price = calculate_total_price(price, calculate_sales_tax(price, is_imported, category), quantity)
-      receipt_lines << format_receipt_entry(quantity, category, total_price)
+      total_price = calculate_total_price(item[:price], calculate_sales_tax(item), item[:quantity])
+      receipt_lines << [item[:quantity], item[:category], total_price.round(2)]
     end
 
     receipt_lines
@@ -65,28 +67,5 @@ class TaxCalculator
 
   def calculate_total_price(price, sales_tax, quantity)
     (price + sales_tax) * quantity
-  end
-
-  def total_amount_presenter(total_amount)
-    "Total: #{format('%.2f', total_amount)}"
-  end
-
-  def sales_tax_presenter(total_sales_taxes)
-    "Sales Taxes: #{format('%.2f', total_sales_taxes)}"
-  end
-
-  def parse_item(item)
-    item_details = item.split(' ')
-    quantity = item_details[0].to_i
-    price = item_details[-1].to_f
-    is_imported = item.include?('imported')
-    category = item_details[1..-3].join(' ')
-
-    [quantity, category, price, is_imported]
-  end
-
-  def format_receipt_entry(quantity, category, total_price)
-    format('%<quantity>d %<category>s: %<total_price>.2f', quantity:, category:,
-                                                           total_price:)
   end
 end

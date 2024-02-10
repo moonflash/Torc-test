@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative 'lib/tax_calculator'
+require_relative 'lib/input_parser'
+require_relative 'lib/receipt'
 
 puts 'Enter input:'
 input = ''
@@ -13,4 +15,6 @@ end
 
 # Output results
 puts 'Receipt:'
-puts TaxCalculator.new.generate_receipt(input)
+items = InputParser.parse(input)
+receipt_lines, total_sales_taxes, total_amount = TaxCalculator.new(items).result
+puts Receipt.new(receipt_lines, total_sales_taxes, total_amount).print
