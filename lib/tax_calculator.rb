@@ -13,8 +13,8 @@ class TaxCalculator
   end
 
   def result
-    total_sales_taxes, total_amount = calculate_totals(@items)
-    receipt_lines = prepare_receipt_lines(@items)
+    total_sales_taxes, total_amount = calculate_totals
+    receipt_lines = prepare_receipt_lines
     [receipt_lines, total_sales_taxes, total_amount]
   end
 
@@ -36,15 +36,11 @@ class TaxCalculator
     (amount / 0.05).ceil * 0.05
   end
 
-  def parse_input(input)
-    input.split("\n")
-  end
-
-  def calculate_totals(items)
+  def calculate_totals
     total_sales_taxes = 0
     total_amount = 0
 
-    items.each do |item|
+    @items.each do |item|
       sales_tax = calculate_sales_tax(item)
       total_price = calculate_total_price(item[:price], sales_tax, item[:quantity])
 
@@ -55,9 +51,9 @@ class TaxCalculator
     [total_sales_taxes, total_amount]
   end
 
-  def prepare_receipt_lines(items)
+  def prepare_receipt_lines
     receipt_lines = []
-    items.each do |item|
+    @items.each do |item|
       total_price = calculate_total_price(item[:price], calculate_sales_tax(item), item[:quantity])
       receipt_lines << [item[:quantity], item[:category], total_price.round(2)]
     end
